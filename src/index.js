@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import createStore from './reducks/store/store'
 import { ConnectedRouter } from 'connected-react-router'
 import * as History from 'history'
-import './index.css'
+
 import App from './App'
 import * as serviceWorker from './serviceWorker'
 
