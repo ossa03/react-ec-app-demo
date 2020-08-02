@@ -1,7 +1,54 @@
 import { push } from 'connected-react-router'
-// import { signInActions } from './actions'
 import { auth, FirebaseTimestamp, db } from '../../firebase'
-import { signInActions } from './actions'
+import { signInActions, signOutActions } from './actions'
+
+const getUserInfoObj = async (user) => {
+	const uid = user.uid
+
+	const snapshot = await db.collection('users').doc(uid).get()
+	const data = snapshot.data()
+
+	const userInfo = {
+		isSignedIn: true,
+		role: data.role,
+		uid,
+		username: data.username,
+	}
+
+	return userInfo
+}
+
+export const listenAuthState = () => {
+	return async (dispatch) => {
+		return auth.onAuthStateChanged(async (user) => {
+			if (user) {
+				const userInfo = await getUserInfoObj(user)
+
+				dispatch(signInActions(userInfo))
+				dispatch(push('/'))
+			} else {
+				dispatch(push('signin'))
+			}
+		})
+	}
+}
+
+export const resetPassword = (email) => {
+	return async (dispatch) => {
+		if (email === '') {
+			window.alert('メールアドレスが未入力です')
+		} else {
+			try {
+				await auth.sendPasswordResetEmail(email)
+				window.alert('入力されたメールアドレスへパスワードリセット用のメールを送信しました')
+				dispatch(push('/'))
+			} catch (error) {
+				window.alert('パスワードリセットに失敗しました。通信状況を確認して再度お試しください')
+				console.error({ error })
+			}
+		}
+	}
+}
 
 export const signIn = (email, password) => {
 	return async (dispatch) => {
@@ -15,22 +62,11 @@ export const signIn = (email, password) => {
 		const response = await auth.signInWithEmailAndPassword(email, password)
 		const user = response.user
 
-		// Home画面へリダイレクト
 		if (user) {
-			const uid = user.uid
+			const userInfo = await getUserInfoObj(user)
 
-			const snapshot = await db.collection('users').doc(uid).get()
-			const data = snapshot.data()
-
-			dispatch(
-				signInActions({
-					isSignedIn: true,
-					role: data.role,
-					uid: uid,
-					username: data.username,
-				}),
-			)
-
+			dispatch(signInActions(userInfo))
+			// Home画面へリダイレクト
 			dispatch(push('/'))
 		}
 	}
@@ -71,5 +107,16 @@ export const signUp = (username, email, password, confirmPassword) => {
 			// Home画面へリダイレクト
 			dispatch(push('/'))
 		}
+	}
+}
+
+export const signOut = () => {
+	return async (dispatch) => {
+		// firebase-authからサインアウト
+		await auth.signOut()
+		// store初期化
+		dispatch(signOutActions())
+		// サインイン画面へ遷移
+		dispatch(push('/signin'))
 	}
 }
