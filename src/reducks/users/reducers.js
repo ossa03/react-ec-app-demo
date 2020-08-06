@@ -13,8 +13,6 @@ export const UsersReducer = (state = initialState.users, action) => {
 				...action.payload,
 			}
 		default:
-			return {
-				...state,
-			}
+			return state
 	}
 }

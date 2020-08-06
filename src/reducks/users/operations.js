@@ -25,7 +25,6 @@ export const listenAuthState = () => {
 				const userInfo = await getUserInfoObj(user)
 
 				dispatch(signInActions(userInfo))
-				dispatch(push('/'))
 			} else {
 				dispatch(push('signin'))
 			}
