@@ -1,11 +1,17 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { TextInput, PrimaryButton, SelectBox } from '../components/UIkit'
-import ImageArea from '../components/products/ImageArea'
+import { ImageArea, SetSizeImageArea } from '../components/products'
 import { useDispatch } from 'react-redux'
 import { saveProduct } from '../reducks/products/operations'
+import { db } from '../firebase/index'
 
 const ProductEdit = () => {
 	const dispatch = useDispatch()
+
+	let id = window.location.pathname.split('product/edit')[1]
+	if (id !== '') {
+		id = id.split('/')[1]
+	}
 
 	// state
 	const [category, setCategory] = useState('')
@@ -14,6 +20,7 @@ const ProductEdit = () => {
 	const [images, setImages] = useState([])
 	const [name, setName] = useState('')
 	const [price, setPrice] = useState('')
+	const [sizes, setSizes] = useState([])
 
 	const inputName = useCallback((event) => setName(event.target.value), [setName])
 	const inputDescription = useCallback((event) => setDescription(event.target.value), [setDescription])
@@ -29,6 +36,23 @@ const ProductEdit = () => {
 		{ id: 'female', name: '女性' },
 		{ id: 'other', name: 'その他' },
 	]
+
+	useEffect(() => {
+		if (id !== '') {
+			db.collection('products')
+				.doc(id)
+				.get()
+				.then((snapshot) => {
+					const data = snapshot.data()
+					setCategory(data.category)
+					setDescription(data.description)
+					setGender(data.gender)
+					setImages(data.images)
+					setName(data.name)
+					setPrice(data.price)
+				})
+		}
+	}, [id])
 
 	return (
 		<div className='c-section-container'>
@@ -81,10 +105,14 @@ const ProductEdit = () => {
 
 			<div className={'module-spacer--medium'}></div>
 
+			<SetSizeImageArea sizes={sizes} setSizes={setSizes} />
+
+			<div className={'module-spacer--medium'}></div>
+
 			<div className={'center'}>
 				<PrimaryButton
 					label={'商品情報を保存'}
-					onClick={() => dispatch(saveProduct(name, description, category, gender, price, images))}
+					onClick={() => dispatch(saveProduct(id, name, description, category, gender, price, images, sizes))}
 				/>
 				<div className={'module-spacer--medium'}></div>
 			</div>
