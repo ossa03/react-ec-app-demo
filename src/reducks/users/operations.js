@@ -111,6 +111,10 @@ export const signUp = (username, email, password, confirmPassword) => {
 
 export const signOut = () => {
 	return async (dispatch) => {
+		const ref = window.confirm('ログアウトしますか？')
+
+		if (!ref) return
+
 		// firebase-authからサインアウト
 		await auth.signOut()
 		// store初期化
