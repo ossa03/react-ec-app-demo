@@ -1,10 +1,11 @@
 import React, { useEffect, useCallback, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { db } from '../firebase'
+import { useSelector, useDispatch } from 'react-redux'
+import { db, FirebaseTimestamp } from '../firebase'
 import { makeStyles } from '@material-ui/core/styles'
 import HtmlReactParser from 'html-react-parser'
 import ImageSwiper from '../components/products/ImageSwiper'
 import { SizeTable } from '../components/products'
+import { addProductToCart } from '../reducks/users/operations'
 
 const useStyles = makeStyles((theme) => ({
 	sliderBox: {
@@ -38,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ProductDetail = () => {
+	const dispatch = useDispatch()
 	const classes = useStyles()
 	const selector = useSelector((state) => state)
 	const path = selector.router.location.pathname
@@ -48,6 +50,7 @@ const ProductDetail = () => {
 	// state
 	const [product, setProduct] = useState(null)
 
+	// ? idは次のコードではダメか？
 	// 	let id = window.location.pathname.split('product/edit')[1]
 	// if (id !== '') {
 	// 	id = id.split('/')[1]
@@ -72,6 +75,27 @@ const ProductDetail = () => {
 		return HtmlReactParser(text.replace('/\r?\n/g', '<br>'))
 	}
 
+	const addProduct = useCallback(
+		(selectedSize) => {
+			const timestamp = FirebaseTimestamp.now()
+			dispatch(
+				addProductToCart({
+					added_at: timestamp,
+					description: product.description,
+					gender: product.gender,
+					images: product.sizes,
+					name: product.name,
+					price: product.price,
+					productId: product.id,
+					quantity: 1,
+					size: selectedSize,
+				}),
+			)
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[product],
+	)
+
 	return (
 		<section className='c-section-wrapin'>
 			{product && (
@@ -83,7 +107,7 @@ const ProductDetail = () => {
 						<h2 className='u-text__headline'>{product.name}</h2>
 						<p className={classes.price}>￥{product.price.toLocaleString()}</p>
 						<div className='module-spacer--small'></div>
-						<SizeTable sizes={product.sizes} />
+						<SizeTable sizes={product.sizes} addProduct={addProduct} />
 						<div className='module-spacer--small'></div>
 						<p>{returnToCodeBr(product.description)}</p>
 					</div>
