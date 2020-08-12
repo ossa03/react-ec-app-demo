@@ -1,5 +1,13 @@
+export const FETCH_PRODUCTS_IN_CART = 'FETCH_PRODUCTS_IN_CART'
+export const fetchProductsInCartAction = (productsInCart) => {
+	return {
+		type: 'FETCH_PRODUCTS_IN_CART',
+		payload: productsInCart,
+	}
+}
+
 export const SIGN_IN = 'SIGN_IN'
-export const signInActions = (userState) => {
+export const signInAction = (userState) => {
 	return {
 		type: 'SIGN_IN',
 		payload: {
@@ -12,7 +20,7 @@ export const signInActions = (userState) => {
 }
 
 export const SIGN_OUT = 'SIGN_OUT'
-export const signOutActions = () => {
+export const signOutAction = () => {
 	return {
 		type: 'SIGN_OUT',
 		payload: {

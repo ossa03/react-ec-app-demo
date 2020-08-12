@@ -1,6 +1,6 @@
 import { push } from 'connected-react-router'
 import { auth, FirebaseTimestamp, db } from '../../firebase'
-import { signInActions, signOutActions } from './actions'
+import { signInAction, signOutAction, fetchProductsInCartAction } from './actions'
 
 export const addProductToCart = (addedProduct) => {
 	return async (dispatch, getState) => {
@@ -8,7 +8,6 @@ export const addProductToCart = (addedProduct) => {
 		const cartRef = db.collection('users').doc(uid).collection('cart').doc()
 		addedProduct['cartId'] = cartRef.id
 		await cartRef.set(addedProduct)
-		dispatch(push('/'))
 	}
 }
 
@@ -28,13 +27,19 @@ const getUserInfoObj = async (user) => {
 	return userInfo
 }
 
+export const fetchProductsInCart = (productsInCart) => {
+	return async (dispatch) => {
+		dispatch(fetchProductsInCartAction(productsInCart))
+	}
+}
+
 export const listenAuthState = () => {
 	return async (dispatch) => {
 		return auth.onAuthStateChanged(async (user) => {
 			if (user) {
 				const userInfo = await getUserInfoObj(user)
 
-				dispatch(signInActions(userInfo))
+				dispatch(signInAction(userInfo))
 			} else {
 				dispatch(push('signin'))
 			}
@@ -74,7 +79,7 @@ export const signIn = (email, password) => {
 		if (user) {
 			const userInfo = await getUserInfoObj(user)
 
-			dispatch(signInActions(userInfo))
+			dispatch(signInAction(userInfo))
 			// Home画面へリダイレクト
 			dispatch(push('/'))
 		}
@@ -128,7 +133,7 @@ export const signOut = () => {
 		// firebase-authからサインアウト
 		await auth.signOut()
 		// store初期化
-		dispatch(signOutActions())
+		dispatch(signOutAction())
 		// サインイン画面へ遷移
 		dispatch(push('/signin'))
 	}
