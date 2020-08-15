@@ -8,7 +8,11 @@ service cloud.firestore {
       allow delete: if request.auth.uid == userId;
 
       match /cart/{cartId}{
-        allow read ,write: if request.auth.uid == userId
+        allow read ,write: if request.auth.uid == userId;
+      }
+
+      match /orders/{orderId}{
+        allow read,write: if request.auth.uid==userId;
       }
     }
 

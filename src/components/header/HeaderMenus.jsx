@@ -8,36 +8,36 @@ import { useSelector, useDispatch } from 'react-redux'
 import { getProductsInCart, getUserId } from '../../reducks/users/selectors'
 import { db } from '../../firebase'
 import { fetchProductsInCart } from '../../reducks/users/operations'
+import { push } from 'connected-react-router'
 
 const HeaderMenus = (props) => {
 	const dispatch = useDispatch()
 	const selector = useSelector((state) => state)
 	const uid = getUserId(selector)
-	const productsInCart = getProductsInCart(selector)
+	let productsInCart = getProductsInCart(selector)
 
+	// Listen products in user's cart
 	useEffect(() => {
 		const unsubscribe = db
 			.collection('users')
 			.doc(uid)
 			.collection('cart')
 			.onSnapshot((snapshots) => {
-				snapshots.docChanges().forEach((changedSnapshot) => {
-					const product = changedSnapshot.doc.data()
-					const changeType = changedSnapshot.type
+				snapshots.docChanges().forEach((change) => {
+					const product = change.doc.data()
+					const changeType = change.type
 
 					switch (changeType) {
-						// 新規追加されたら
 						case 'added':
 							productsInCart.push(product)
 							break
-						// 変更があったら
 						case 'modified':
-							const index = productsInCart.findIndex((product) => product.id === changedSnapshot.doc.id)
+							const index = productsInCart.findIndex((product) => product.cartId === change.doc.id)
 							productsInCart[index] = product
 							break
-						// 削除されたら
 						case 'removed':
-							productsInCart.filter((product) => product.id !== changedSnapshot.doc.id)
+							// eslint-disable-next-line react-hooks/exhaustive-deps
+							productsInCart = productsInCart.filter((product) => product.cartId !== change.doc.id)
 							break
 						default:
 							break
@@ -46,15 +46,13 @@ const HeaderMenus = (props) => {
 
 				dispatch(fetchProductsInCart(productsInCart))
 			})
-		return () => {
-			unsubscribe()
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+
+		return () => unsubscribe()
 	}, [])
 
 	return (
 		<>
-			<IconButton>
+			<IconButton onClick={() => dispatch(push(`/cart`))}>
 				<Badge badgeContent={productsInCart.length} color='secondary'>
 					<ShoppingCartIcon />
 				</Badge>

@@ -1,3 +1,11 @@
+export const ORDERED_HISTORY = 'ORDERED_HISTORY'
+export const fetchOrderedHistory = (history) => {
+	return {
+		type: 'ORDERED_HISTORY',
+		payload: history,
+	}
+}
+
 export const FETCH_PRODUCTS_IN_CART = 'FETCH_PRODUCTS_IN_CART'
 export const fetchProductsInCartAction = (productsInCart) => {
 	return {

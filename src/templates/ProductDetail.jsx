@@ -63,8 +63,6 @@ const ProductDetail = () => {
 			.then((doc) => {
 				const data = doc.data()
 				setProduct(data)
-
-				console.log({ data })
 			})
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,7 +81,7 @@ const ProductDetail = () => {
 					added_at: timestamp,
 					description: product.description,
 					gender: product.gender,
-					images: product.sizes,
+					images: product.images,
 					name: product.name,
 					price: product.price,
 					productId: product.id,

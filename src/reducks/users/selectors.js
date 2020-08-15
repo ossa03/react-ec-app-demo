@@ -1,11 +1,13 @@
 import { createSelector } from 'reselect'
 
-const userSelector = (state) => state.users
+const usersSelector = (state) => state.users
 
-export const getIsSignedIn = createSelector([userSelector], (state) => state.isSignedIn)
+export const getIsSignedIn = createSelector([usersSelector], (state) => state.isSignedIn) // Boolean
 
-export const getProductsInCart = createSelector([userSelector], (state) => state.cart)
+export const getProductsInCart = createSelector([usersSelector], (state) => state.cart) // Array
 
-export const getUserId = createSelector([userSelector], (state) => state.uid)
+export const getHistory = createSelector([usersSelector], (state) => state.history) // Array
 
-export const getUsername = createSelector([userSelector], (state) => state.username)
+export const getUserId = createSelector([usersSelector], (state) => state.uid) // uid
+
+export const getUsername = createSelector([usersSelector], (state) => state.username) // username

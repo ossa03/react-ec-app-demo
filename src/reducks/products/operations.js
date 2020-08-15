@@ -1,11 +1,12 @@
 import { FirebaseTimestamp, db } from '../../firebase'
 import { fetchProductsAction, deleteProductAction } from './actions'
+import { push } from 'connected-react-router'
 
-const productRef = db.collection('products')
+const productsRef = db.collection('products')
 
 export const deleteProduct = (id) => {
 	return async (dispatch, getState) => {
-		productRef
+		productsRef
 			.doc(id)
 			.delete()
 			.then(() => {
@@ -18,7 +19,7 @@ export const deleteProduct = (id) => {
 
 export const fetchProducts = () => {
 	return async (dispatch) => {
-		productRef
+		productsRef
 			.orderBy('updated_at', 'desc')
 			.get()
 			.then((snapshots) => {
@@ -30,6 +31,83 @@ export const fetchProducts = () => {
 
 				dispatch(fetchProductsAction(productList))
 			})
+	}
+}
+
+export const orderProducts = (productsInCart, totalWithTax) => {
+	return async (dispatch, getState) => {
+		const uid = getState().users.uid
+		const userRef = db.collection('users').doc(uid)
+		const timestamp = FirebaseTimestamp.now()
+
+		let products = []
+		let soldOutProducts = []
+
+		const batch = db.batch()
+
+		for (const product of productsInCart) {
+			const snapshot = await productsRef.doc(product.productId).get()
+			const sizes = snapshot.data().sizes
+
+			const updatedSizes = sizes.map((size) => {
+				if (size.size === product.size) {
+					if (size.quantity === 0) {
+						soldOutProducts.push(product.name)
+						return size
+					}
+					return {
+						size: size.size,
+						quantity: size.quantity - 1,
+					}
+				} else {
+					return size
+				}
+			})
+
+			products.push({
+				id: product.productId,
+				images: product.images,
+				name: product.name,
+				price: product.price,
+				size: product.size,
+			})
+
+			batch.update(productsRef.doc(product.productId), { sizes: updatedSizes })
+			batch.delete(userRef.collection('cart').doc(product.cartId))
+		}
+
+		if (soldOutProducts.length > 0) {
+			const errorMessage = soldOutProducts.length > 1 ? soldOutProducts.join('と') : soldOutProducts[0]
+			window.alert(`大変申し訳ございません．${errorMessage} が在庫切れとなったため、注文処理を中断しました．`)
+		} else {
+			batch
+				.commit()
+				.then(() => {
+					// Create order history data
+					const orderRef = userRef.collection('orders').doc()
+					const date = timestamp.toDate()
+
+					// Calculate shipping date which is the date after 3 days
+					const shippingDate = FirebaseTimestamp.fromDate(new Date(date.setDate(date.getDate() + 3)))
+
+					const history = {
+						amount: totalWithTax,
+						created_at: timestamp,
+						id: orderRef.id,
+						products,
+						shippingDate,
+						updated_at: timestamp,
+					}
+
+					orderRef.set(history)
+					dispatch(push('order/complete'))
+				})
+				.catch((error) => {
+					window.alert('注文処理に失敗しました．通信環境をご確認のうえ、もう一度お試しください．')
+					console.log({ error })
+					return false
+				})
+		}
 	}
 }
 
@@ -50,13 +128,13 @@ export const saveProduct = (id, name, description, category, gender, price, imag
 
 		// 編集ページでないときは新規作成する
 		if (id === '') {
-			const ref = productRef.doc()
+			const ref = productsRef.doc()
 			id = ref.id
 			data.id = id
 			data.created_at = timestamp
 		}
 
-		return productRef
+		return productsRef
 			.doc(id)
 			.set(data, { merge: true })
 			.then(() => {

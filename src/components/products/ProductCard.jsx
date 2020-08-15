@@ -62,14 +62,14 @@ const ProductCard = (props) => {
 		setAnchorEl(null)
 	}
 
-	const images = props.images.length > 0 ? props.images : [{ path: NoImage }]
+	const imagePath = props.images.length > 0 ? props.images[0].path : NoImage
 	const price = props.price.toLocaleString()
 
 	return (
 		<Card className={classes.root}>
 			<CardMedia
 				className={classes.media}
-				image={images[0].path}
+				image={imagePath}
 				title=''
 				onClick={() => dispatch(push(`/product/${props.id}`))}
 			/>

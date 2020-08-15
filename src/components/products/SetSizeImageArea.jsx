@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { TableContainer, Paper, TableCell, TableHead, TableBody, TableRow, IconButton, Table } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Edit'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle'
@@ -25,15 +25,6 @@ const SetSizeImageArea = (props) => {
 	const [index, setIndex] = useState(0)
 	const [size, setSize] = useState('')
 	const [quantity, setQuantity] = useState(0)
-
-	// サイズをSelectBoxで実装する場合
-	// const sizeOptions = [
-	// 	{ id: 'XS', name: 'XS' },
-	// 	{ id: 'S', name: 'S' },
-	// 	{ id: 'M', name: 'M' },
-	// 	{ id: 'L', name: 'L' },
-	// 	{ id: 'XL', name: 'XL' },
-	// ]
 
 	const inputSize = useCallback(
 		(event) => {
@@ -82,7 +73,7 @@ const SetSizeImageArea = (props) => {
 		props.setSizes(newSizes)
 	}
 
-	const memoIndex = useMemo(() => {
+	useEffect(() => {
 		setIndex(props.sizes.length)
 	}, [props.sizes.length])
 
