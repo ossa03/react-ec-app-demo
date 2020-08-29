@@ -61,7 +61,7 @@ const OrderedProducts = (props) => {
 						</div>
 						<PrimaryButton
 							label={'商品詳細を見る'}
-							omClick={() => dispatch(goToProductDetail(product.id))}
+							onClick={() => dispatch(goToProductDetail(product.id))}
 						/>
 					</ListItem>
 				))}
