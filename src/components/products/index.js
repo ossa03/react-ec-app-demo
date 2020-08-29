@@ -1,4 +1,6 @@
 export { default as CartListItem } from './CartListItem'
+export { default as OrderedProducts } from './OrderedProducts'
+export { default as OrdersHistoryItem } from './OrdersHistoryItem'
 export { default as ProductCard } from './ProductCard'
 export { default as ImageArea } from './ImageArea'
 export { default as ImagePreview } from './ImagePreview'

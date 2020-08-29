@@ -6,7 +6,7 @@ export const getIsSignedIn = createSelector([usersSelector], (state) => state.is
 
 export const getProductsInCart = createSelector([usersSelector], (state) => state.cart) // Array
 
-export const getHistory = createSelector([usersSelector], (state) => state.history) // Array
+export const getOrdersHistory = createSelector([usersSelector], (state) => state.orders) // Array
 
 export const getUserId = createSelector([usersSelector], (state) => state.uid) // uid
 

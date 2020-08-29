@@ -5,6 +5,8 @@ import { makeStyles } from '@material-ui/styles'
 import { storage } from '../../firebase/index'
 import { ImagePreview } from '../products'
 
+// import NoImage from '../../assets/image/src/noimage.png'
+
 const useStyle = makeStyles({
 	icon: {
 		width: 48,
@@ -32,6 +34,7 @@ const ImageArea = (props) => {
 	const uploadImage = useCallback(
 		async (event) => {
 			const file = event.target.files
+			// file !== undefined || null ? file : NoImage
 			let blob = new Blob(file, { type: 'image/jpeg' })
 
 			// Generate random 16 digits strings

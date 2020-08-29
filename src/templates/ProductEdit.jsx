@@ -15,6 +15,7 @@ const ProductEdit = () => {
 
 	// state
 	const [category, setCategory] = useState('')
+	const [categories, setCategories] = useState([])
 	const [description, setDescription] = useState('')
 	const [gender, setGender] = useState('')
 	const [images, setImages] = useState([])
@@ -26,15 +27,10 @@ const ProductEdit = () => {
 	const inputDescription = useCallback((event) => setDescription(event.target.value), [setDescription])
 	const inputPrice = useCallback((event) => setPrice(event.target.value), [setPrice])
 
-	const categories = [
-		{ id: 'tops', name: 'トップス' },
-		{ id: 'shirt', name: 'シャツ' },
-		{ id: 'pants', name: 'パンツ' },
-	]
 	const genders = [
 		{ id: 'male', name: '男性' },
 		{ id: 'female', name: '女性' },
-		{ id: 'other', name: 'その他' },
+		{ id: 'all', name: 'すべて' },
 	]
 
 	useEffect(() => {
@@ -53,6 +49,23 @@ const ProductEdit = () => {
 				})
 		}
 	}, [id])
+
+	useEffect(() => {
+		db.collection('categorys')
+			.orderBy('order', 'asc')
+			.get()
+			.then((snapshots) => {
+				const list = []
+				snapshots.forEach((snapshot) => {
+					const data = snapshot.data()
+					list.push({
+						id: data.id,
+						name: data.name,
+					})
+				})
+				setCategories(list)
+			})
+	}, [])
 
 	return (
 		<div className='c-section-container'>

@@ -1,7 +1,7 @@
-export const ORDERED_HISTORY = 'ORDERED_HISTORY'
-export const fetchOrderedHistory = (history) => {
+export const FETCH_ORDERS_HISTORY = 'FETCH_ORDERS_HISTORY'
+export const fetchOrdersHistoryAction = (history) => {
 	return {
-		type: 'ORDERED_HISTORY',
+		type: 'FETCH_ORDERS_HISTORY',
 		payload: history,
 	}
 }

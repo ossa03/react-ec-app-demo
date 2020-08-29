@@ -16,6 +16,8 @@ import { TextInput } from '../UIkit'
 import { useDispatch } from 'react-redux'
 import { push } from 'connected-react-router'
 import { signOut } from '../../reducks/users/operations'
+import { useEffect } from 'react'
+import { db } from '../../firebase'
 
 const useStyles = makeStyles((theme) => ({
 	drawer: {
@@ -56,11 +58,37 @@ const ClosableDrawer = (props) => {
 		props.onClose(event)
 	}
 
+	const [filters, setFilters] = useState([
+		{ func: selectMenu, label: 'すべて', id: 'all', value: `/` },
+		{ func: selectMenu, label: 'メンズ', id: 'male', value: `/?gender=male` },
+		{ func: selectMenu, label: 'レディース', id: 'female', value: `/?gender=female` },
+	])
+
 	const menus = [
 		{ func: selectMenu, label: '商品登録', icon: <AddCircleIcon />, id: 'register', value: '/product/edit' },
 		{ func: selectMenu, label: '注文履歴', icon: <HistoryIcon />, id: 'history', value: '/order/history' },
 		{ func: selectMenu, label: 'プロフィール', icon: <PersonIcon />, id: 'profile', value: `user/mypage` },
 	]
+
+	useEffect(() => {
+		db.collection('categorys')
+			.orderBy('order', 'asc')
+			.get()
+			.then((snapshots) => {
+				const list = []
+				snapshots.forEach((snapshot) => {
+					const category = snapshot.data()
+					list.push({
+						func: selectMenu,
+						label: category.name,
+						id: category.id,
+						value: `/?category=${category.id}`,
+					})
+				})
+				setFilters((prevState) => [...prevState, ...list])
+			})
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	return (
 		<nav className={classes.drawer}>
@@ -94,7 +122,7 @@ const ClosableDrawer = (props) => {
 				<Divider />
 				<List>
 					{menus.map((menu) => (
-						<ListItem button key={menu.id} id={menu.id} onClick={(event) => menu.func(event, menu.value)}>
+						<ListItem button key={menu.id} onClick={(event) => menu.func(event, menu.value)}>
 							<ListItemIcon>{menu.icon}</ListItemIcon>
 							<ListItemText primary={menu.label} />
 						</ListItem>
@@ -106,6 +134,14 @@ const ClosableDrawer = (props) => {
 						</ListItemIcon>
 						<ListItemText primary={'logout'} />
 					</ListItem>
+				</List>
+				<Divider />
+				<List>
+					{filters.map((filter) => (
+						<ListItem button key={filter.id} onClick={(event) => filter.func(event, filter.value)}>
+							<ListItemText primary={filter.label} />
+						</ListItem>
+					))}
 				</List>
 			</Drawer>
 		</nav>
